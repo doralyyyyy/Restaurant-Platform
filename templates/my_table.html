@@ -1,0 +1,90 @@
+
+{% extends "base.html" %}
+{% block title %}我的餐桌 - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">我的餐桌 - {{ restaurant.name }}</h3>
+    <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}" class="btn btn-outline-secondary btn-sm">
+        返回菜单
+    </a>
+</div>
+
+{% if not cart_items %}
+    <div class="alert alert-info">
+        你的餐桌目前是空的，快去挑几道菜吧～
+    </div>
+{% else %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive mb-3">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th>菜品</th>
+                        <th>单价</th>
+                        <th class="text-center">份数</th>
+                        <th class="text-end">小计</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in cart_items %}
+                        {% set dish = entry.dish %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if dish.thumb %}
+                                        <img src="{{ url_for('static', filename=dish.thumb) }}"
+                                             alt="{{ dish.name }}" class="rounded" width="40" height="40">
+                                    {% endif %}
+                                    <div class="small">
+                                        <div class="fw-semibold">{{ dish.name }}</div>
+                                        <div class="text-muted">
+                                            {{ dish.category.name }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>￥{{ '%.2f'|format(dish.price) }}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <form method="post"
+                                          action="{{ url_for('update_cart', restaurant_id=restaurant.id, dish_id=dish.id) }}">
+                                        <input type="hidden" name="action" value="dec">
+                                        <button type="submit" class="btn btn-outline-secondary">-</button>
+                                    </form>
+                                    <span class="px-2 align-self-center{% if entry.quantity == 0 %} text-muted{% endif %}">{{ entry.quantity }}</span>
+                                    <form method="post"
+                                          action="{{ url_for('update_cart', restaurant_id=restaurant.id, dish_id=dish.id) }}">
+                                        <input type="hidden" name="action" value="inc">
+                                        <button type="submit" class="btn btn-outline-secondary">+</button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td class="text-end{% if entry.quantity == 0 %} text-muted{% endif %}">￥{{ '%.2f'|format(entry.line_total) }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    付款后系统才会真正记录你的点菜信息。
+                </div>
+                <div class="text-end">
+                    <div class="mb-2">
+                        总价：
+                        <strong class="fs-5 text-danger">￥{{ '%.2f'|format(total) }}</strong>
+                    </div>
+                    <form method="post" action="{{ url_for('checkout', restaurant_id=restaurant.id) }}"
+                          onsubmit="return confirm('确认付款吗？');">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-credit-card me-1"></i> 付款
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

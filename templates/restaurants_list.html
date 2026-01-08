@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+{% block title %}选择餐厅 - 智慧餐厅平台{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">选择餐厅</h3>
+    <div class="text-muted small">
+        按 <strong>销售额</strong> 从高到低排序。
+    </div>
+</div>
+
+{% if not rows %}
+    <div class="alert alert-info">
+        当前系统内还没有任何餐厅。你可以先点击上方“管理餐厅”创建一家属于自己的餐厅。
+    </div>
+{% else %}
+    <div class="row g-4">
+        {% for restaurant, revenue in rows %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm h-100 hover-card">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-center mb-3 gap-3">
+                            {% if restaurant.logo %}
+                                <img src="{{ url_for('static', filename=restaurant.logo) }}"
+                                     alt="{{ restaurant.name }}" class="rounded" width="56" height="56">
+                            {% else %}
+                                <div class="restaurant-logo-placeholder rounded d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-shop fs-3 text-primary"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="card-title mb-1 text-truncate" title="{{ restaurant.name }}">
+                                    {{ restaurant.name }}
+                                </h5>
+                                <div class="text-muted small">
+                                    总销售额：<span class="text-danger">￥{{ '%.2f'|format(revenue) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                创建于 {{ restaurant.created_at.strftime('%Y-%m-%d') if restaurant.created_at else '' }}
+                            </small>
+                            <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id) }}"
+                               class="btn btn-sm btn-success">
+                                进入餐厅
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,194 @@
+
+{% extends "base.html" %}
+{% if mode == 'add' %}
+    {% set page_title = '添加菜品 - ' ~ category.name %}
+{% else %}
+    {% set page_title = '编辑菜品 - ' ~ dish.name %}
+{% endif %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-3">
+                    {% if mode == 'add' %}
+                        添加菜品 - {{ category.name }}
+                    {% else %}
+                        编辑菜品 - {{ dish.name }}
+                    {% endif %}
+                </h3>
+                <form method="post" enctype="multipart/form-data" id="dishForm">
+                    <div class="mb-3">
+                        <label class="form-label">菜品名称</label>
+                        <input type="text" class="form-control" name="name"
+                               value="{{ dish.name if dish else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">价格（元）</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" name="price"
+                               value="{{ dish.price if dish else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">菜品介绍（500 字以内）</label>
+                        <textarea class="form-control" name="description" rows="4"
+                                  maxlength="500">{{ dish.description if dish else '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {% if dish and dish.thumb %}菜品图片（可选）{% else %}菜品图片 <span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {% if dish and dish.thumb %}
+                            <div class="mb-3 p-3 bg-light rounded">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div>
+                                        <div class="text-muted small mb-1">当前图片：</div>
+                                        <img src="{{ url_for('static', filename=dish.thumb) }}" alt="当前图片"
+                                             class="rounded border shadow-sm" 
+                                             style="width: 100px; height: 100px; object-fit: cover;">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="text-muted small">
+                                            <i class="bi bi-info-circle me-1"></i>如不上传新图片，则保持不变。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="dish-image-upload-area border rounded p-3 text-center" 
+                             id="dishImageUploadArea" 
+                             style="border: 2px dashed #dee2e6; background-color: #f8f9fa; cursor: pointer; transition: all 0.3s ease; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div id="dishImagePreviewContainer" style="display: none; margin-bottom: 1rem;">
+                                <img id="dishImagePreview" src="" alt="图片预览" 
+                                     class="rounded shadow-sm" 
+                                     style="max-width: 300px; max-height: 300px; object-fit: contain; border: 3px solid #667eea;">
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="changeDishImageBtn">
+                                        <i class="bi bi-pencil me-1"></i>更换图片
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="dishImageUploadPrompt">
+                                <i class="bi bi-cloud-upload fs-1 text-muted mb-2 d-block"></i>
+                                <div class="text-muted small">
+                                    <div>点击或拖拽图片到此区域上传</div>
+                                    <div class="mt-1">支持 JPG、PNG、GIF 格式</div>
+                                    <div class="mt-1 text-primary">系统会自动生成缩略图和大图</div>
+                                </div>
+                            </div>
+                            <input type="file" class="d-none" name="image" id="dishImageInput" accept="image/*"{% if not dish or not dish.thumb %} required{% endif %}>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('manage_dishes') }}" class="btn btn-outline-secondary">返回</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if mode == 'add' %}添加{% else %}保存修改{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dishImageInput = document.getElementById('dishImageInput');
+    const dishImageUploadArea = document.getElementById('dishImageUploadArea');
+    const dishImagePreviewContainer = document.getElementById('dishImagePreviewContainer');
+    const dishImagePreview = document.getElementById('dishImagePreview');
+    const dishImageUploadPrompt = document.getElementById('dishImageUploadPrompt');
+    const changeDishImageBtn = document.getElementById('changeDishImageBtn');
+
+    if (!dishImageInput) return;
+
+    // 点击上传区域选择文件
+    dishImageUploadArea.addEventListener('click', function(e) {
+        if (e.target !== changeDishImageBtn && !changeDishImageBtn.contains(e.target)) {
+            dishImageInput.click();
+        }
+    });
+
+    // 点击更换图片按钮
+    if (changeDishImageBtn) {
+        changeDishImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dishImageInput.click();
+        });
+    }
+
+    // 文件选择变化时显示预览
+    dishImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // 验证文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件！');
+                return;
+            }
+
+            // 验证文件大小（10MB）
+            if (file.size > 10 * 1024 * 1024) {
+                alert('图片大小不能超过 10MB！');
+                return;
+            }
+
+            // 读取文件并显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                dishImagePreview.src = e.target.result;
+                dishImagePreviewContainer.style.display = 'block';
+                dishImageUploadPrompt.style.display = 'none';
+                dishImageUploadArea.style.borderColor = '#667eea';
+                dishImageUploadArea.style.backgroundColor = '#ffffff';
+                dishImageUploadArea.style.minHeight = 'auto';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 拖拽上传
+    dishImageUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dishImageUploadArea.style.borderColor = '#667eea';
+        dishImageUploadArea.style.backgroundColor = '#f0f4ff';
+    });
+
+    dishImageUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        if (!dishImagePreviewContainer.style.display || dishImagePreviewContainer.style.display === 'none') {
+            dishImageUploadArea.style.borderColor = '#dee2e6';
+            dishImageUploadArea.style.backgroundColor = '#f8f9fa';
+        }
+    });
+
+    dishImageUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            dishImageInput.files = files;
+            dishImageInput.dispatchEvent(new Event('change'));
+        }
+        dishImageUploadArea.style.borderColor = '#dee2e6';
+        dishImageUploadArea.style.backgroundColor = '#f8f9fa';
+    });
+
+    // 表单提交验证（仅在添加模式下验证）
+    const dishForm = document.getElementById('dishForm');
+    {% if mode == 'add' %}
+    if (dishForm) {
+        dishForm.addEventListener('submit', function(e) {
+            if (!dishImageInput.files || dishImageInput.files.length === 0) {
+                e.preventDefault();
+                alert('请上传菜品图片！');
+                return false;
+            }
+        });
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}

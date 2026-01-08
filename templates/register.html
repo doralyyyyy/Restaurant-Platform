@@ -1,0 +1,164 @@
+
+{% extends "base.html" %}
+{% block title %}注册 - 智慧餐厅平台{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3 class="card-title mb-2">注册账号</h3>
+                    <p class="text-muted small mb-0">
+                        创建您的账号，开始使用智慧餐厅平台
+                    </p>
+                </div>
+                <form method="post" enctype="multipart/form-data" id="registerForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">用户名</label>
+                        <input type="text" class="form-control" name="username" required 
+                               placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">密码</label>
+                        <input type="password" class="form-control" name="password" required 
+                               placeholder="请输入密码">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">确认密码</label>
+                        <input type="password" class="form-control" name="password2" required 
+                               placeholder="请再次输入密码">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">头像 <span class="text-danger">*</span></label>
+                        <div class="avatar-upload-area border rounded p-3 text-center" 
+                             id="avatarUploadArea" 
+                             style="border: 2px dashed #dee2e6; background-color: #f8f9fa; cursor: pointer; transition: all 0.3s ease;">
+                            <div id="avatarPreviewContainer" style="display: none; margin-bottom: 1rem;">
+                                <img id="avatarPreview" src="" alt="头像预览" 
+                                     class="rounded-circle shadow-sm" 
+                                     style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #667eea;">
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="changeAvatarBtn">
+                                        <i class="bi bi-pencil me-1"></i>更换头像
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="avatarUploadPrompt">
+                                <i class="bi bi-cloud-upload fs-1 text-muted mb-2 d-block"></i>
+                                <div class="text-muted small">
+                                    <div>点击或拖拽图片到此区域上传</div>
+                                    <div class="mt-1">支持 JPG、PNG、GIF 格式</div>
+                                    <div class="mt-1 text-primary">系统会自动压缩至 100×100 像素</div>
+                                </div>
+                            </div>
+                            <input type="file" class="d-none" name="avatar" id="avatarInput" 
+                                   accept="image/*" required>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>立即注册
+                        </button>
+                    </div>
+                    <p class="mt-3 mb-0 text-center small">
+                        已有账号？<a href="{{ url_for('login') }}" class="text-decoration-none">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>点击这里登录
+                        </a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarUploadArea = document.getElementById('avatarUploadArea');
+    const avatarPreviewContainer = document.getElementById('avatarPreviewContainer');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarUploadPrompt = document.getElementById('avatarUploadPrompt');
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+
+    // 点击上传区域选择文件
+    avatarUploadArea.addEventListener('click', function(e) {
+        if (e.target !== changeAvatarBtn && !changeAvatarBtn.contains(e.target)) {
+            avatarInput.click();
+        }
+    });
+
+    // 点击更换头像按钮
+    changeAvatarBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        avatarInput.click();
+    });
+
+    // 文件选择变化时显示预览
+    avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // 验证文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件！');
+                return;
+            }
+
+            // 验证文件大小（10MB）
+            if (file.size > 10 * 1024 * 1024) {
+                alert('图片大小不能超过 10MB！');
+                return;
+            }
+
+            // 读取文件并显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarPreview.src = e.target.result;
+                avatarPreviewContainer.style.display = 'block';
+                avatarUploadPrompt.style.display = 'none';
+                avatarUploadArea.style.borderColor = '#667eea';
+                avatarUploadArea.style.backgroundColor = '#ffffff';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 拖拽上传
+    avatarUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        avatarUploadArea.style.borderColor = '#667eea';
+        avatarUploadArea.style.backgroundColor = '#f0f4ff';
+    });
+
+    avatarUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        if (!avatarPreviewContainer.style.display || avatarPreviewContainer.style.display === 'none') {
+            avatarUploadArea.style.borderColor = '#dee2e6';
+            avatarUploadArea.style.backgroundColor = '#f8f9fa';
+        }
+    });
+
+    avatarUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            avatarInput.files = files;
+            avatarInput.dispatchEvent(new Event('change'));
+        }
+        avatarUploadArea.style.borderColor = '#dee2e6';
+        avatarUploadArea.style.backgroundColor = '#f8f9fa';
+    });
+
+    // 表单提交前验证
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        if (!avatarInput.files || avatarInput.files.length === 0) {
+            e.preventDefault();
+            alert('请上传头像！');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

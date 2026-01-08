@@ -1,0 +1,53 @@
+
+{% extends "base.html" %}
+{% block title %}首页 - 智慧餐厅平台{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-md-8">
+        <h1 class="fw-bold mb-3">
+            <i class="bi bi-emoji-smile-fill text-warning me-2"></i>
+            欢迎，{{ current_user.username }}！
+        </h1>
+        <p class="lead text-muted">
+            在这里你既可以作为 <strong class="text-primary">餐厅老板</strong> 管理自己的餐厅，
+            也可以作为 <strong class="text-success">食客</strong> 去各个餐厅点餐、体验美食。
+        </p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 choose-card border-0" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="mb-3 text-primary">
+                    <i class="bi bi-shop-window" style="font-size: 3.5rem;"></i>
+                </div>
+                <h4 class="card-title fw-bold mb-3">管理我的餐厅</h4>
+                <p class="card-text text-muted flex-grow-1 mb-4">
+                    创建餐厅、添加菜品、查看销量报表、维护黑名单，还可以向智能顾问咨询经营问题。
+                </p>
+                <a href="{{ url_for('manage_restaurant') }}" class="btn btn-primary btn-lg mt-auto">
+                    <i class="bi bi-arrow-right-circle me-2"></i>进入管理后台
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 choose-card border-0" style="background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="mb-3 text-success">
+                    <i class="bi bi-egg-fried" style="font-size: 3.5rem;"></i>
+                </div>
+                <h4 class="card-title fw-bold mb-3">我要点餐</h4>
+                <p class="card-text text-muted flex-grow-1 mb-4">
+                    浏览所有餐厅，按销量排序。选择一家喜欢的餐厅，挑选菜品加入"我的餐桌"，付款后系统会记录你的消费历史。
+                </p>
+                <a href="{{ url_for('restaurants') }}" class="btn btn-success btn-lg mt-auto">
+                    <i class="bi bi-arrow-right-circle me-2"></i>去点餐
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

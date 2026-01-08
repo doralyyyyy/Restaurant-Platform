@@ -1,0 +1,328 @@
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    letter-spacing: 0.03em;
+    font-weight: 700;
+}
+
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.choose-card:hover,
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease-in-out;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-nav {
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: cover !important;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-placeholder,
+.avatar-placeholder-small {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder-small {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+.restaurant-logo-placeholder {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-image-placeholder {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.flash-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.flash-container .alert {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.advisor-answer {
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    line-height: 1.8;
+}
+
+.advisor-answer strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.advisor-answer h3 {
+    color: #667eea;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 0.5rem;
+}
+
+.advisor-answer h4 {
+    color: #764ba2;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.advisor-answer h5 {
+    color: #764ba2;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.advisor-answer h6 {
+    color: #764ba2;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.advisor-answer hr {
+    border: none;
+    border-top: 2px solid #e9ecef;
+    margin: 1.5rem 0;
+}
+
+.advisor-answer ul,
+.advisor-answer ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+    list-style-position: outside;
+}
+
+.advisor-answer li {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+    display: list-item;
+}
+
+.advisor-answer ul li {
+    list-style-type: disc;
+}
+
+.advisor-answer ol {
+    counter-reset: ol-counter;
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.advisor-answer ol li {
+    counter-increment: ol-counter;
+    position: relative;
+    padding-left: 2rem;
+    list-style-type: none;
+    margin-left: 0;
+}
+
+.advisor-answer ol li::before {
+    content: counter(ol-counter) ". ";
+    position: absolute;
+    left: 0;
+    font-weight: 600;
+    color: #667eea;
+    min-width: 1.5rem;
+}
+
+.quick-question-btn {
+    margin: 0.25rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.quick-question-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.nav-link.active {
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.advisor-answer {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.example-question {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.example-question:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.avatar-upload-area {
+    transition: all 0.3s ease;
+}
+
+.avatar-upload-area:hover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+}
+
+.avatar-upload-area.dragover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+    transform: scale(1.02);
+}
+
+/* Logo 上传区域样式 */
+.logo-upload-area {
+    transition: all 0.3s ease;
+}
+
+.logo-upload-area:hover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+}
+
+.logo-upload-area.dragover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+    transform: scale(1.02);
+}
+
+/* 菜品图片上传区域样式 */
+.dish-image-upload-area {
+    transition: all 0.3s ease;
+}
+
+.dish-image-upload-area:hover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+}
+
+.dish-image-upload-area.dragover {
+    border-color: #667eea !important;
+    background-color: #f0f4ff !important;
+    transform: scale(1.02);
+}

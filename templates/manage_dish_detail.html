@@ -1,0 +1,87 @@
+
+{% extends "base.html" %}
+{% block title %}菜品详情 - {{ dish.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">菜品详情</h3>
+    <a href="{{ url_for('manage_dishes') }}" class="btn btn-outline-secondary btn-sm">返回菜品管理</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            {% if dish.image %}
+                <img src="{{ url_for('static', filename=dish.image) }}" class="card-img-top"
+                     alt="{{ dish.name }}">
+            {% elif dish.thumb %}
+                <img src="{{ url_for('static', filename=dish.thumb) }}" class="card-img-top"
+                     alt="{{ dish.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h4 class="card-title mb-2">{{ dish.name }}</h4>
+                <div class="text-danger fw-bold mb-2">￥{{ '%.2f'|format(dish.price) }}</div>
+                <p class="card-text small text-muted mb-0">
+                    分类：{{ dish.category.name }}<br>
+                    创建时间：{{ dish.created_at.strftime('%Y-%m-%d %H:%M') if dish.created_at else '' }}<br>
+                    已被点：<strong>{{ total_qty }}</strong> 份
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">点过这道菜的顾客</h5>
+                {% if not customer_rows %}
+                    <div class="text-muted small">暂时还没有顾客点过这道菜。</div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                            <tr>
+                                <th>顾客</th>
+                                <th>份数</th>
+                                <th>消费金额</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user, qty, amount in customer_rows %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <a href="{{ url_for('customer_history', user_id=user.id) }}"
+                                               class="text-decoration-none d-flex align-items-center gap-2">
+                                                {% if user.avatar %}
+                                                    <img src="{{ url_for('static', filename=user.avatar) }}"
+                                                         alt="{{ user.username }}"
+                                                         class="rounded-circle" width="32" height="32">
+                                                {% else %}
+                                                    <div class="avatar-placeholder-small rounded-circle text-center text-white small">
+                                                        {{ user.username[0]|upper }}
+                                                    </div>
+                                                {% endif %}
+                                                <span class="small text-body">{{ user.username }}</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>{{ qty }}</td>
+                                    <td>￥{{ '%.2f'|format(amount) }}</td>
+                                    <td>
+                                        <a href="{{ url_for('customer_history', user_id=user.id) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            查看点菜历史
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+
+{% extends "base.html" %}
+{% block title %}菜品管理 - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">菜品管理</h3>
+    <a href="{{ url_for('manage_restaurant') }}" class="btn btn-outline-secondary btn-sm">返回餐厅概览</a>
+</div>
+<p class="text-muted small mb-3">
+    系统内置 4 个常用分类：饮品、菜品、主食、小吃。你可以在各分类下自由添加菜品。
+</p>
+
+{% if not categories %}
+    <div class="alert alert-info">当前还没有任何菜品分类。</div>
+{% endif %}
+
+<div class="accordion" id="categoryAccordion">
+    {% for category in categories %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ category.id }}">
+                <button class="accordion-button{% if not loop.first %} collapsed{% endif %}" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ category.id }}"
+                        aria-expanded="{{ 'true' if loop.first else 'false' }}"
+                        aria-controls="collapse{{ category.id }}">
+                    {{ category.name }}
+                </button>
+            </h2>
+            <div id="collapse{{ category.id }}"
+                 class="accordion-collapse collapse{% if loop.first %} show{% endif %}"
+                 aria-labelledby="heading{{ category.id }}"
+                 data-bs-parent="#categoryAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">该分类下的菜品</h6>
+                        <a href="{{ url_for('add_dish', category_id=category.id) }}"
+                           class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> 添加菜品
+                        </a>
+                    </div>
+                    {% if not category.dishes %}
+                        <div class="text-muted small">暂时还没有菜品，赶快添加一道招牌菜吧～</div>
+                    {% else %}
+                        <div class="row g-3">
+                            {% for dish in category.dishes %}
+                                {% set stats = dish_stats.get(dish.id, {}) %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="row g-0 h-100">
+                                            <div class="col-4 d-flex align-items-center justify-content-center">
+                                                {% if dish.thumb %}
+                                                    <img src="{{ url_for('static', filename=dish.thumb) }}"
+                                                         alt="{{ dish.name }}" class="img-fluid rounded-start">
+                                                {% else %}
+                                                    <div class="no-image-placeholder w-100 h-100 d-flex align-items-center justify-content-center">
+                                                        <span class="text-muted small">无图</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="card-body d-flex flex-column">
+                                                    <h6 class="card-title mb-1 text-truncate" title="{{ dish.name }}">
+                                                        {{ dish.name }}
+                                                    </h6>
+                                                    <div class="text-danger fw-bold mb-1">
+                                                        ￥{{ '%.2f'|format(dish.price) }}
+                                                    </div>
+                                                    <div class="small text-muted mb-1 flex-grow-1">
+                                                        已被点 {{ stats.get('qty', 0) }} 份，
+                                                        共 {{ stats.get('user_count', 0) }} 位顾客点过。
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                                        <a href="{{ url_for('manage_dish_detail', dish_id=dish.id) }}"
+                                                           class="btn btn-sm btn-outline-secondary">详情</a>
+                                                        <a href="{{ url_for('edit_dish', dish_id=dish.id) }}"
+                                                           class="btn btn-sm btn-outline-primary">编辑</a>
+                                                        <form method="post"
+                                                              action="{{ url_for('delete_dish', dish_id=dish.id) }}"
+                                                              class="d-inline"
+                                                              onsubmit="return confirm('确定要删除该菜品及其所有点餐记录吗？');">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                删除
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

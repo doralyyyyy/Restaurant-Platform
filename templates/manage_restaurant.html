@@ -1,0 +1,238 @@
+
+{% extends "base.html" %}
+{% block title %}管理餐厅 - 智慧餐厅平台{% endblock %}
+
+{% block content %}
+{% if not restaurant %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-3 text-center">创建我的餐厅</h3>
+                    <p class="text-muted small mb-4 text-center">
+                        每位用户最多拥有一家餐厅。餐厅名称 <strong>不可重名</strong>。
+                    </p>
+                    <form method="post" enctype="multipart/form-data" id="createRestaurantForm">
+                        <div class="mb-3">
+                            <label class="form-label">餐厅名称</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">餐厅 Logo <span class="text-danger">*</span></label>
+                            <div class="logo-upload-area border rounded p-3 text-center" 
+                                 id="logoUploadArea" 
+                                 style="border: 2px dashed #dee2e6; background-color: #f8f9fa; cursor: pointer; transition: all 0.3s ease; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div id="logoPreviewContainer" style="display: none; margin-bottom: 1rem;">
+                                    <img id="logoPreview" src="" alt="Logo预览" 
+                                         class="rounded shadow-sm" 
+                                         style="width: 200px; height: 200px; object-fit: cover; border: 3px solid #667eea;">
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="changeLogoBtn">
+                                            <i class="bi bi-pencil me-1"></i>更换Logo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="logoUploadPrompt">
+                                    <i class="bi bi-image fs-1 text-muted mb-2 d-block"></i>
+                                    <div class="text-muted small">
+                                        <div>点击或拖拽图片到此区域上传</div>
+                                        <div class="mt-1">支持 JPG、PNG、GIF 格式</div>
+                                        <div class="mt-1 text-primary">系统会自动压缩至 300×300 像素</div>
+                                    </div>
+                                </div>
+                                <input type="file" class="d-none" name="logo" id="logoInput" accept="image/*" required>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">创建餐厅</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8 d-flex align-items-center gap-3">
+            {% if restaurant.logo %}
+                <img src="{{ url_for('static', filename=restaurant.logo) }}" alt="logo" class="rounded"
+                     width="64" height="64">
+            {% else %}
+                <div class="restaurant-logo-placeholder rounded d-flex align-items-center justify-content-center">
+                    <i class="bi bi-shop fs-2 text-primary"></i>
+                </div>
+            {% endif %}
+            <div>
+                <h3 class="mb-1">{{ restaurant.name }}</h3>
+                <div class="text-muted small">
+                    创建时间：{{ restaurant.created_at.strftime('%Y-%m-%d %H:%M') if restaurant.created_at else '' }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ url_for('restaurants') }}" class="btn btn-outline-secondary btn-sm">去前台看看</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <a href="{{ url_for('manage_dishes') }}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 hover-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 text-primary">
+                            <i class="bi bi-egg-fried fs-1"></i>
+                        </div>
+                        <h5 class="card-title">菜品管理</h5>
+                        <p class="text-muted small mb-0">
+                            管理菜品分类、添加/修改菜品，查看每道菜被点了多少份。
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ url_for('manage_customers') }}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 hover-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 text-success">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                        <h5 class="card-title">消费者列表</h5>
+                        <p class="text-muted small mb-0">
+                            查看每位顾客的总消费额和点菜历史，并可一键拉黑/取消黑名单。
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ url_for('manage_reports') }}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 hover-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-pie-chart fs-1"></i>
+                        </div>
+                        <h5 class="card-title">菜品报表</h5>
+                        <p class="text-muted small mb-0">
+                            根据菜品被点份数和销售额生成漂亮的饼图，一眼看出招牌菜。
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ url_for('manage_advisor') }}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 hover-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 text-info">
+                            <i class="bi bi-chat-dots fs-1"></i>
+                        </div>
+                        <h5 class="card-title">经营顾问</h5>
+                        <p class="text-muted small mb-0">
+                            向智能顾问提问，例如“哪个客人消费最多”、“最受欢迎的三道菜”等。
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const logoInput = document.getElementById('logoInput');
+    const logoUploadArea = document.getElementById('logoUploadArea');
+    const logoPreviewContainer = document.getElementById('logoPreviewContainer');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoUploadPrompt = document.getElementById('logoUploadPrompt');
+    const changeLogoBtn = document.getElementById('changeLogoBtn');
+
+    if (!logoInput) return; // 如果不存在，说明不在创建餐厅页面
+
+    // 点击上传区域选择文件
+    logoUploadArea.addEventListener('click', function(e) {
+        if (e.target !== changeLogoBtn && !changeLogoBtn.contains(e.target)) {
+            logoInput.click();
+        }
+    });
+
+    // 点击更换Logo按钮
+    if (changeLogoBtn) {
+        changeLogoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            logoInput.click();
+        });
+    }
+
+    // 文件选择变化时显示预览
+    logoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // 验证文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件！');
+                return;
+            }
+
+            // 验证文件大小（10MB）
+            if (file.size > 10 * 1024 * 1024) {
+                alert('图片大小不能超过 10MB！');
+                return;
+            }
+
+            // 读取文件并显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                logoPreview.src = e.target.result;
+                logoPreviewContainer.style.display = 'block';
+                logoUploadPrompt.style.display = 'none';
+                logoUploadArea.style.borderColor = '#667eea';
+                logoUploadArea.style.backgroundColor = '#ffffff';
+                logoUploadArea.style.minHeight = 'auto';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 拖拽上传
+    logoUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        logoUploadArea.style.borderColor = '#667eea';
+        logoUploadArea.style.backgroundColor = '#f0f4ff';
+    });
+
+    logoUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        if (!logoPreviewContainer.style.display || logoPreviewContainer.style.display === 'none') {
+            logoUploadArea.style.borderColor = '#dee2e6';
+            logoUploadArea.style.backgroundColor = '#f8f9fa';
+        }
+    });
+
+    logoUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            logoInput.files = files;
+            logoInput.dispatchEvent(new Event('change'));
+        }
+        logoUploadArea.style.borderColor = '#dee2e6';
+        logoUploadArea.style.backgroundColor = '#f8f9fa';
+    });
+
+    // 表单提交验证
+    const createRestaurantForm = document.getElementById('createRestaurantForm');
+    if (createRestaurantForm) {
+        createRestaurantForm.addEventListener('submit', function(e) {
+            if (!logoInput.files || logoInput.files.length === 0) {
+                e.preventDefault();
+                alert('请上传餐厅Logo！');
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

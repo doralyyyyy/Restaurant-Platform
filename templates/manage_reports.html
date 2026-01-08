@@ -1,0 +1,147 @@
+
+{% extends "base.html" %}
+{% block title %}菜品报表 - {{ restaurant.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .chart-wrapper {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">菜品报表</h3>
+    <a href="{{ url_for('manage_restaurant') }}" class="btn btn-outline-secondary btn-sm">返回餐厅概览</a>
+</div>
+
+{% if not labels %}
+    <div class="alert alert-info">
+        暂无菜品或尚未产生任何订单，无法生成报表。
+    </div>
+{% else %}
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">按菜品被点份数统计</h5>
+                    <p class="text-muted small">饼图显示各菜品被点的份数占比。</p>
+                    <div class="chart-wrapper mb-2">
+                        <canvas id="qtyChart"></canvas>
+                    </div>
+                    <div class="text-end small text-muted">
+                        总份数：<strong>{{ total_qty }}</strong> 份
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">按菜品销售额统计</h5>
+                    <p class="text-muted small">饼图显示各菜品销售额占比。</p>
+                    <div class="chart-wrapper mb-2">
+                        <canvas id="amountChart"></canvas>
+                    </div>
+                    <div class="text-end small text-muted">
+                        总销售额：<strong>￥{{ '%.2f'|format(total_amount) }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if labels %}
+<script>
+    const labels = {{ labels|tojson }};
+    const qtyData = {{ qty_data|tojson }};
+    const labelsAmount = {{ labels_amount|tojson }};
+    const amountDataSorted = {{ amount_data_sorted|tojson }};
+    const colors = {{ colors|tojson }};
+
+    const qtyCtx = document.getElementById('qtyChart').getContext('2d');
+    const amountCtx = document.getElementById('amountChart').getContext('2d');
+
+    // 按份数排序的饼图
+    new Chart(qtyCtx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: qtyData,
+                backgroundColor: colors,
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 10,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} 份 (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 按销售额排序的饼图
+    new Chart(amountCtx, {
+        type: 'pie',
+        data: {
+            labels: labelsAmount,
+            datasets: [{
+                data: amountDataSorted,
+                backgroundColor: colors,
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 10,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ￥${value.toFixed(2)} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,153 @@
+
+{% extends "base.html" %}
+{% block title %}{{ dish.name }} - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('restaurants') }}">所有餐厅</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('restaurant_menu', restaurant_id=restaurant.id, category_id=dish.category_id) }}">
+                        {{ restaurant.name }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ dish.name }}</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('my_table', restaurant_id=restaurant.id) }}" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-basket me-1"></i> 我的餐桌
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            {% if dish.image %}
+                <img src="{{ url_for('static', filename=dish.image) }}" class="card-img-top" alt="{{ dish.name }}">
+            {% elif dish.thumb %}
+                <img src="{{ url_for('static', filename=dish.thumb) }}" class="card-img-top" alt="{{ dish.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h3 class="card-title mb-2">{{ dish.name }}</h3>
+                <p class="text-danger fw-bold fs-5 mb-2">￥{{ '%.2f'|format(dish.price) }}</p>
+                <p class="card-text small text-muted">
+                    分类：{{ dish.category.name }}
+                </p>
+                <p class="card-text">
+                    {{ dish.description or '暂无介绍。' }}
+                </p>
+                <form method="post" action="{{ url_for('add_to_cart_route', dish_id=dish.id) }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-1"></i> 加入我的餐桌
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7" id="ask">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3">
+                    <h5 class="card-title mb-2">
+                        <i class="bi bi-chat-dots-fill me-2 text-info"></i>智能点餐顾问
+                    </h5>
+                    <p class="text-muted small mb-3">
+                        默认会围绕 <strong class="text-primary">{{ dish.name }}</strong> 回答。若你在问题中明确提到其他菜名，
+                        智能顾问也会综合考虑餐厅全部菜品来回答。
+                    </p>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2">💡 快速问题：</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-info quick-question-btn"
+                                    onclick="setDishQuestion('这道菜适合配什么饮品？')">
+                                搭配建议
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info quick-question-btn"
+                                    onclick="setDishQuestion('这道菜的口味如何？')">
+                                口味特点
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info quick-question-btn"
+                                    onclick="setDishQuestion('这道菜受欢迎吗？')">
+                                受欢迎程度
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info quick-question-btn"
+                                    onclick="setDishQuestion('推荐几道类似的菜品')">
+                                类似推荐
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <form method="post" class="mb-3 flex-grow-0" id="dishQuestionForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">你的问题</label>
+                        <textarea class="form-control" name="question" rows="3" id="dishQuestionInput"
+                                  placeholder="例如：这道菜辣吗？适合配什么饮品？">{{ question or '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>这是与系统的智能聊天，不影响实际点餐
+                        </span>
+                        <button type="submit" class="btn btn-primary btn-sm" id="dishSubmitBtn">
+                            <i class="bi bi-stars me-1"></i> 发送问题
+                        </button>
+                    </div>
+                </form>
+                <div id="dishLoadingIndicator" style="display: none;" class="mb-3">
+                    <div class="d-flex align-items-center text-muted small">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <span>AI顾问正在思考中，请稍候...</span>
+                    </div>
+                </div>
+                {% if answer %}
+                    <hr class="my-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-robot text-info me-2"></i>
+                        <h6 class="mb-0 fw-semibold">智能顾问回答：</h6>
+                    </div>
+                    <div class="advisor-answer small">
+                        {{ answer|format_ai|safe }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setDishQuestion(text) {
+    const questionInput = document.getElementById('dishQuestionInput');
+    if (questionInput) {
+        questionInput.value = text;
+        questionInput.focus();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('dishQuestionForm');
+    const submitBtn = document.getElementById('dishSubmitBtn');
+    const loadingIndicator = document.getElementById('dishLoadingIndicator');
+    
+    if (form) {
+        form.addEventListener('submit', function() {
+            const questionInput = document.getElementById('dishQuestionInput');
+            if (questionInput && questionInput.value.trim()) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>发送中...';
+                loadingIndicator.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

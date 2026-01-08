@@ -1,0 +1,115 @@
+
+{% extends "base.html" %}
+{% block title %}经营顾问 - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">经营顾问</h3>
+            <a href="{{ url_for('manage_restaurant') }}" class="btn btn-outline-secondary btn-sm">返回餐厅概览</a>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-lightbulb-fill text-warning me-2"></i>智能经营顾问
+                    </h5>
+                    <p class="text-muted mb-3">
+                        你可以向智能顾问询问关于餐厅经营的各种问题，系统会结合本餐厅的真实数据进行分析，为你提供专业的建议。
+                    </p>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2">💡 快速问题示例：</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary quick-question-btn" 
+                                    onclick="setQuestion('哪个客人消费最多？')">
+                                消费最多的客人
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary quick-question-btn"
+                                    onclick="setQuestion('近来最受欢迎的三道菜是哪些？')">
+                                最受欢迎的菜品
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary quick-question-btn"
+                                    onclick="setQuestion('有没有顾客很久没来了？')">
+                                流失的顾客
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary quick-question-btn"
+                                    onclick="setQuestion('哪些菜品销售额最高？')">
+                                销售额排行
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary quick-question-btn"
+                                    onclick="setQuestion('我应该如何提升餐厅的营业额？')">
+                                提升营业额建议
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <form method="post" class="mb-3" id="advisorForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-question-circle me-1"></i>我的问题
+                        </label>
+                        <textarea class="form-control" name="question" rows="4" id="questionInput"
+                                  placeholder="在这里输入你的问题，例如：哪个客人消费最多？或：我应该如何提升餐厅的营业额？">{{ question or '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>系统会结合本餐厅的真实数据做分析
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="bi bi-stars me-1"></i> 询问顾问
+                        </button>
+                    </div>
+                </form>
+                <div id="loadingIndicator" style="display: none;" class="mb-3">
+                    <div class="d-flex align-items-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <span>AI顾问正在思考中，请稍候...</span>
+                    </div>
+                </div>
+                {% if answer %}
+                    <hr class="my-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-robot text-primary me-2 fs-5"></i>
+                        <h6 class="mb-0 fw-semibold">顾问回答：</h6>
+                    </div>
+                    <div class="advisor-answer">
+                        {{ answer|format_ai|safe }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setQuestion(text) {
+    const questionInput = document.getElementById('questionInput');
+    if (questionInput) {
+        questionInput.value = text;
+        questionInput.focus();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('advisorForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    
+    if (form) {
+        form.addEventListener('submit', function() {
+            const questionInput = document.getElementById('questionInput');
+            if (questionInput && questionInput.value.trim()) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>提交中...';
+                loadingIndicator.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
