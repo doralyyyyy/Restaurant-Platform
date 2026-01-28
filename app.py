@@ -1,6 +1,8 @@
-
 import os
 import uuid
+
+from dotenv import load_dotenv
+load_dotenv()
 import colorsys
 from decimal import Decimal
 from datetime import datetime
@@ -37,10 +39,10 @@ UPLOAD_ROOT = os.path.join('static', 'uploads')
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, UPLOAD_ROOT)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
 
-# GPT 配置
-GPT_BASE_URL = os.getenv('GPT_BASE_URL', 'https://aizex.top/v1')
-GPT_API_KEY = os.getenv('GPT_API_KEY', 'sk-YZybkMjhj6XN6PT0iCFueG4cp0KuzXCJWRR5RnXuZuODU8hA')
-GPT_MODEL = os.getenv('GPT_MODEL', 'gpt-5')
+# GPT 配置（从 .env 读取）
+GPT_BASE_URL = os.getenv('GPT_BASE_URL', '')
+GPT_API_KEY = os.getenv('GPT_API_KEY', '')
+GPT_MODEL = os.getenv('GPT_MODEL', 'gpt-4o')
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
